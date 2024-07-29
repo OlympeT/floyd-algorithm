@@ -9,6 +9,7 @@ def floyd_algo(n, edge)
     nxt[u - 1][v - 1] = v - 1
   end
 
+  
   n.times do |k|
     n.times do |i|
       n.times do |j|
@@ -20,6 +21,7 @@ def floyd_algo(n, edge)
     end
   end
 
+  
   puts 'pair     dist    path'
   n.times do |i|
     n.times do |j|
@@ -34,7 +36,7 @@ def floyd_algo(n, edge)
   end
 end
 
-# To Test it do it
+# To Test it
 # n = 4
 # edge = [[1, 3, -2], [2, 1, 4], [2, 3, 3], [3, 4, 2], [4, 2, -1]]
 # floyd_algo(n, edge)
