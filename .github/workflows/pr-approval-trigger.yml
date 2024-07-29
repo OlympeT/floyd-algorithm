@@ -1,13 +1,13 @@
 name: Trigger Azure DevOps Pipeline on PR Approval
 
 on:
-  pull_request_review:
-    types: [submitted]
+  pull_request:
+    types: [ready_for_review]
 
 jobs:
   trigger-azure-pipeline:
     runs-on: ubuntu-latest
-    if: github.event.review.state == 'approved'
+    if: github.event.pull_request.merged == false
     steps:
       - name: Trigger Azure DevOps Pipeline
         env:
