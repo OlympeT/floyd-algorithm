@@ -1,14 +1,19 @@
-name: Trigger Azure DevOps Pipeline on PR Approval
+name: Trigger Azure DevOps Pipeline on PR Ready for Review
 
 on:
-  pull_request_review:
-    types: [submitted]
+  pull_request:
+    types: [ready_for_review]
 
 jobs:
   trigger-azure-pipeline:
     runs-on: ubuntu-latest
-    if: github.event.review.state == 'approved'
     steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Trigger Azure DevOps Pipeline
         env:
           AZURE_DEVOPS_ORG: ACSEP
@@ -18,7 +23,9 @@ jobs:
         run: |
           pr_branch=$(jq -r .pull_request.head.ref < $GITHUB_EVENT_PATH)
           echo "Pull request branch: $pr_branch"
-          curl -X POST \
+
+          echo "Triggering Azure DevOps Pipeline..."
+          response=$(curl -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Basic $(echo -n :$AZURE_DEVOPS_TOKEN | base64)" \
             -d '{
@@ -27,4 +34,15 @@ jobs:
                   },
                   "sourceBranch": "refs/heads/'"$pr_branch"'"
                 }' \
-            "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/build/builds?api-version=6.0"
+            "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/build/builds?api-version=6.0")
+
+          echo "Response from Azure DevOps API:"
+          echo "$response"
+
+          status_code=$(echo "$response" | jq -r .status)
+          if [[ "$status_code" != "201" ]]; then
+            echo "Failed to trigger Azure DevOps Pipeline. Status code: $status_code"
+            exit 1
+          fi
+
+          echo "Successfully triggered Azure DevOps Pipeline."
