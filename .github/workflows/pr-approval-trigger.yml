@@ -19,7 +19,7 @@ jobs:
           AZURE_DEVOPS_ORG: ACSEP
           AZURE_DEVOPS_PROJECT: OW
           AZURE_DEVOPS_PIPELINE_ID: 2
-          AZURE_DEVOPS_TOKEN: ntc33huyg3uaexwsj4wppomgkefqxu6kzuu5h3jpmwabtot6cxiq
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
         run: |
           pr_branch=$(jq -r .pull_request.head.ref < $GITHUB_EVENT_PATH)
           echo "Pull request branch: $pr_branch"
